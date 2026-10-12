@@ -5,7 +5,7 @@
 🇺🇸 [Read in English](README.md)
 
 Reconstrução do meu TCC da Especialização em Data Science & Big Data (UFPR, 2024).
-O texto original está em [`referencias/monografia.tex`](referencias/monografia.tex).
+O texto original está em [`referencias/monografia.pdf`](referencias/monografia.pdf).
 
 ![Demonstração do app](relatorios/imagens/app.gif)
 

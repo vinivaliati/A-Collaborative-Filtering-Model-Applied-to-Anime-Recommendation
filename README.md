@@ -5,7 +5,7 @@
 🇧🇷 [Leia em português](README.pt-br.md)
 
 A rebuild of my final project for the Data Science & Big Data specialization (UFPR, 2024).
-The original paper (in Portuguese) is in [`referencias/monografia.tex`](referencias/monografia.tex).
+The original paper (in Portuguese) is in [`referencias/monografia.pdf`](referencias/monografia.pdf).
 
 ![App demo](relatorios/imagens/app.gif)
 

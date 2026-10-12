@@ -1,7 +1,7 @@
 # CLAUDE.md
 
 Reconstrução do TCC "Modelo de filtragem colaborativa aplicada a recomendação de animes" (UFPR, 2024).
-A monografia em `referencias/monografia.tex` é a especificação do método: mudanças no modelo devem partir dela.
+A monografia em `referencias/monografia.pdf` é a especificação do método: mudanças no modelo devem partir dela.
 
 ## Comandos
 
