@@ -1,0 +1,9 @@
+# ambiente
+.venv/
+__pycache__/
+.ipynb_checkpoints/
+.streamlit/secrets.toml
+
+# dados originais do Kaggle (grandes demais para o git)
+dados/*.csv
+*:Zone.Identifier

@@ -1,0 +1,7 @@
+Modelo,Hit Rate,Serendipity,Animes diferentes recomendados
+Cosine,0.3795,0.42185185185185187,104.0
+Manhattan,0.3575,0.48333333333333334,37.0
+Euclidean,0.358,0.5471851851851852,29.0
+Item-based,0.256,0.4942962962962963,110.0
+Top 10 animes,0.183,,
+Top 3 animes,0.087,,

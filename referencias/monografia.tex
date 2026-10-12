@@ -1,0 +1,249 @@
+\documentclass[twocolumn]{rbef}
+\usepackage{lipsum}
+
+\usepackage{bbm}
+\usepackage{subfig}
+\usepackage{pdfpages} % Para incluir a capa.
+\usepackage{float}
+\usepackage{indentfirst}
+
+\newcommand{\1}{\mathbbm{1}}
+\newcommand{\s}{\mathcal{S}}
+\newcommand{\T}{\mathcal{T}}
+\newcommand{\A}{\mathcal{A}}
+\newcommand{\ket}{\rangle}
+\newcommand{\bra}{\langle}
+
+
+\newenvironment{proof}[1][Proof]{\noindent\textbf{#1.} }{\ \rule{0.5em}{0.5em}}
+
+\titulocabecalho{Modelo de filtragem colaborativa aplicada a recomendação de animes}
+\autorcabecalho{Vinicius Valiati Costa}
+
+\numeracao{1}
+\volume{1}
+\numero{1}
+\ano{2024}
+\doi{http://dsbd.leg.ufpr.br/tcc}
+% \tipodeartigo{TCC DSBD}
+\tipodeartigo{Especialização em Data Science \& Big Data}
+% \addtocounter{page}{566} %% \setcounter produces extra white page!!! use ===\addtocounter===
+
+\author[1]{Vinicius Valiati Costa}
+
+\affil[1]{Aluno do programa de Especialização em Data Science \& Big Data, { vinivaliaticos@gmail.com}
+}
+
+
+\titulo{Modelo de filtragem colaborativa aplicada a recomendação de animes}
+
+\subtitulo{A Collaborative Filtering Model Applied to Anime Recommendation}
+
+% -----------------------------------------------------------------------
+
+\begin{document}
+
+\includepdf[pages=-]{Capa.pdf} % Incluí a capa
+
+\begin{primeirapagina}
+
+  % \begin{center}
+  %   \vspace{-12pt} \small{Recebido em xxx. Aceito em xxx}
+  % \end{center}
+
+  \begin{abstract}
+Sistemas de recomendação são ferramentas essenciais que ajudam a sugerir itens aos usuários com base em diversos fatores, desempenhando um papel crucial em plataformas de \textit{streaming e e-commerce}. Este artigo explora a aplicação da filtragem colaborativa baseada em usuários para a recomendação de animes, focando em um cenário de \textit{cold start}, onde o usuário não possui histórico de avaliações. O estudo é estruturado em dois modelos principais: o primeiro utiliza o algoritmo \textit{K-means }para clusterização de animes, criando “personas” para entender as preferências iniciais dos usuários; o segundo modelo aplica a filtragem colaborativa baseada em usuários usando três métricas de distância (Euclidiana, Manhattan e Coseno) para recomendar animes. Os resultados foram avaliados com base nas métricas de \textit{hit rate e serendipity}, visando diversificar as recomendações e melhorar a experiência do usuário.
+
+\palavraschave{ Sistemas de Recomendação, Filtragem Colaborativa, K-means, Animes, Cold Start, Euclidiana, Manhattan, Coseno, Hit Rate, Serendipity}
+
+  \end{abstract}
+
+  \begin{otherlanguage}{english}
+
+
+    \begin{abstract}
+Recommendation systems are essential tools that help suggest items to users based on various factors, playing a crucial role in streaming and e-commerce platforms. This paper explores the application of user-based collaborative filtering for anime recommendations in a cold start scenario, where the user has no prior rating history. The study is divided into two main models: the first uses the K-means algorithm for clustering animes into “personas” to gauge initial user preferences; the second applies user-based collaborative filtering using three distance metrics (Euclidean, Manhattan, and Cosine) for making recommendations. The effectiveness of the recommendations was evaluated through hit rate and serendipity metrics, aiming to diversify recommendations and enhance user experience.
+      \keywords{Recommendation Systems, Collaborative Filtering, K-means, Anime, Cold Start, Euclidean, Manhattan, Cosine, Hit Rate, Serendipity}
+
+    \end{abstract}
+  \end{otherlanguage}
+
+\end{primeirapagina}
+\saythanks
+
+\section{Introdução} \label{introducao}
+
+Sistemas de recomendação são ferramentas essenciais projetadas para sugerir itens aos usuários com base em diversos fatores, desempenhando um papel crucial em plataformas de \textit{streaming} e \textit{e-commerce}. Esses sistemas têm a capacidade de prever produtos ou conteúdos que os usuários provavelmente irão consumir e achar interessantes. Empresas como Netflix e Amazon utilizam sistemas de recomendação para ajudar seus usuários a identificar produtos ou filmes que atendam às suas preferências.
+
+No contexto de animes, os sistemas de recomendação têm um papel significativo, pois existe um público dedicado que consome exclusivamente esse tipo de mídia, fazendo desse um mercado com grande potencial a ser explorado. A filtragem colaborativa, uma técnica amplamente utilizada em sistemas de recomendação, baseia-se nas ações e preferências dos usuários para sugerir animes que possam ser de interesse. Este método pode ser classificado em duas abordagens principais: baseada em usuários e baseada em itens.
+
+Este trabalho visa explorar a aplicação da filtragem colaborativa baseada em usuários na recomendação de animes, partindo do pressuposto de um usuário novo na plataforma, sem histórico de avaliações. Nesse cenário, é necessário desenvolver um meio eficaz de gerar recomendações personalizadas. Investigamos como essa técnica pode ser implementada para oferecer recomendações personalizadas, melhorando a experiência do usuário em plataformas de \textit{streaming} de animes.
+
+Para isso, este estudo foi dividido em dois modelos. No primeiro modelo, uma clusterização, dividindo os animes em \textit{clusters} de acordo com suas características, formando "personas" que possibilitam ao usuário escolher entre esses \textit{clusters}, ajudando-nos a entender inicialmente suas preferências. No segundo modelo, selecionamos um anime de cada um dos \textit{clusters} escolhidos e fazemos uma recomendação baseada em usuário, analisando o que outros usuários com gostos similares também apreciaram.
+
+Nosso estudo foi organizado em três seções: na seção \ref{teoria}, discutimos brevemente os métodos de filtragem colaborativa e os modelos selecionados para o estudo. Na seção \ref{metodos}, apresentamos o delineamento dos experimentos criados para o estudo e a descrição do processo de modelagem e avaliação dos modelos. Por fim, na seção \ref{resultados}, discutimos os resultados obtidos. 
+
+\section{Discussão} \label{teoria}
+
+Neste estudo, exploramos duas abordagens distintas e complementares para a recomendação de animes. A clusterização de animes usando \textit{K-means} e a filtragem colaborativa baseada em usuários, com ênfase na comparação de diferentes métricas de distância. 
+
+No primeiro modelo, utilizamos o algoritmo de \textit{K-means} para a clusterização dos animes com base em suas \textit{features}. O \textit{K-means} é um algoritmo de agrupamento que visa dividir um conjunto de dados em n \textit{clusters}, onde cada item é atribuído ao \textit{clusters} cuja média das características é mais próxima \cite{MacQueen}. Esta abordagem permite criar "personas" que representam diferentes grupos de interesse, ajudando a revelar as preferências iniciais dos usuários e possibilitando uma segmentação mais precisa do conteúdo.
+
+A técnica de clusterização usando \textit{K-means} é bem estabelecida para sistemas de recomendação, pode ser utilizado para identificar padrões e categorizar itens com base em suas características \cite{Jain}. A formação de \textit{clusters} e a criação de perfis iniciais para novos usuários são passos cruciais que possibilitam uma segmentação eficaz do conteúdo.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=8.5cm]{kmeans.png}
+    \caption{K-Means.}
+    \label{fig:kmeans}
+\end{figure}
+
+O uso desta técnica ajuda a superar o problema do \textit{"cold start"}, um desafio comum em sistemas de recomendação quando se trata de usuários novos sem histórico de interações \cite{Schein}.
+
+No segundo modelo, aplicamos a filtragem colaborativa baseada em usuários para refinar as recomendações de animes com base nas preferências de usuários semelhantes. 
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=8.5cm]{filtragem.png}
+    \caption{Filtragem colaborativa.}
+    \label{fig:filtragem}
+\end{figure}
+
+Utilizamos três diferentes métricas de distância para avaliar a similaridade entre usuários: \textit{Euclidean}, \textit{Manhattan} e \textit{Cosine}.
+
+Cada uma dessas métricas oferece uma perspectiva diferente sobre a similaridade entre usuários e pode impactar a eficácia das recomendações geradas. A filtragem colaborativa baseada em usuários explora as interações e avaliações para sugerir animes que outros usuários com gostos semelhantes também apreciaram \cite{Schafer}.
+
+A distância Euclidiana é frequentemente utilizada devido à sua simplicidade e facilidade de interpretação, enquanto a distância Manhattan pode ser mais robusta em casos onde as características têm diferentes escalas \cite{Hastie}. A distância Coseno é útil para medir a similaridade entre vetores em um espaço de alta dimensão e é especialmente eficaz quando queremos considerar a orientação dos vetores mais do que suas magnitudes \cite{Manning}.
+
+\section{Materiais e métodos} \label{metodos}
+
+A base de dados utilizada para este estudo foi obtida através da API\cite{API} do site \textit{MyAnimeList}, resultando em dois conjuntos de dados principais: o primeiro, chamado animes, com as seguintes variáveis: ID do \textit{MyAnimeList}, Nome, Pontuação, Gêneros, Nome em inglês, Nome em japonês, Tipo, Episódios, Exibido, Estreia, Produtores, Licenciadores, Estúdios, Fonte, Duração, Classificação, Ranking, Popularidade, Membros, Favoritos, Assistindo, Completado, Em espera, Abandonado, Plano de assistir, e as Pontuações de 1 a 10.
+
+O segundo conjunto de dados, chamado \textit{ratings}, contém as variáveis: ID do usuário, ID do anime e Avaliação.
+
+No conjunto de dados animes, há diversas variáveis descritivas que foram submetidas a uma análise exploratória detalhada para determinar quais seriam utilizadas e como seriam tratadas. Por outro lado, o conjunto de dados \textit{ratings} foi transformado em uma matriz de usuário por anime, onde os valores correspondem às notas que cada usuário deu para cada anime.
+
+O objetivo é desenvolver um sistema de recomendação para usuários novos. Para isso, utilizamos o primeiro conjunto de dados para realizar a \textit{clusterização} e criar as "personas". O segundo conjunto de dados é empregado para a filtragem colaborativa baseada em usuários, visando obter recomendações personalizadas. Essa abordagem gera uma lista de recomendações de animes adaptadas às preferências do novo usuário.
+
+Inicialmente, foi enfrentado um problema de viés no modelo devido à popularidade dos animes, pois muitas variáveis refletiam diretamente esse fator. Para mitigar esse viés, decidimos manter apenas a variável "popularidade", removendo variáveis como classificação, ranking, pontuações, assistindo, favoritos, entre outras \cite{Ricci}.
+
+Além disso, foi eliminado variáveis que não contribuíam para a classificação, focando nas que realmente ajudariam a melhorar o desempenho do modelo. Posteriormente, criamos variáveis \textit{dummy} para categorias como gênero, tamanho, estúdio e classificação, entre outros permitindo que essas informações fossem incorporadas de forma adequada ao modelo \cite{Hunter}.
+
+Após a criação das variáveis \textit{dummy}, a base de dados foi normalizada para garantir que todas as variáveis estivessem na mesma escala, utilizando o \textit{MinMaxScaler} do \textit{scikit-learn}. Ajustando a escala de cada variável de forma independente, transformando os valores para um intervalo entre 0 e 1. Este processo é essencial para algoritmos de \textit{machine learning} sensíveis às escalas das variáveis, como o \textit{k-means}.
+
+Foi realizado uma divisão em 20 \textit{clusters}. Após diversos testes, foi concluído que este número representa bem as divisões, proporcionando ao usuário uma boa diversidade de opções sem criar \textit{clusters} com informações redundantes.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=8.5cm]{clusters_pca.png}
+    \caption{clusters PCA}
+    \label{fig:clusters_pca}
+\end{figure}
+
+Após a definição dos \textit{clusters}, em vez de selecionar o anime que melhor representa cada \textit{clusters}, ou seja, o mais central, optamos pelo anime mais popular de cada \textit{clusters}. Esta escolha foi feita porque é necessário obter um \textit{input} do usuário, e não seria eficaz escolher um anime que represente bem o \textit{clusters}, mas que o usuário desconheça.
+
+Com os animes que definem cada \textit{clusters}, o usuário seleciona aqueles que mais se encaixam em seus gostos. Em seguida, esses animes são processados utilizando um modelo de filtragem colaborativa.
+
+Essas métricas foram implementadas usando o algoritmo \textit{Nearest Neighbors} com o parâmetro \textit{algorithm="brute"} para uma comparação direta entre diferentes abordagens de similaridade \cite{Hastie}.
+
+Distância Euclidiana (\textit{Euclidean}): Calcula a raiz quadrada da soma das diferenças ao quadrado entre as características dos usuários.
+
+\begin{equation}
+\text{Euclidiana} = \sqrt{\sum_{i=1}^{n} (x_i - y_i)^2}
+\end{equation}
+
+Distância Manhattan (\textit{Manhattan}): Mede a soma das diferenças absolutas entre as características dos usuários.
+
+\begin{equation}
+\text{Manhattan} = \sum_{i=1}^{n} |x_i - y_i|
+\end{equation}
+
+
+Distância Coseno (\textit{Cosine}): Avalia a similaridade com base no cosseno do ângulo entre os vetores das características dos usuários, focando mais nas orientações do que nas magnitudes \cite{Manning}.
+
+\begin{equation}
+\text{Coseno} = \frac{\sum_{i=1}^{n} x_i y_i}{\sqrt{\sum_{i=1}^{n} x_i^2} \sqrt{\sum_{i=1}^{n} y_i^2}}
+\end{equation}
+
+\section{Resultados} \label{resultados}
+
+Os resultados obtidos pelo primeiro modelo mostram que o \textit{k-means} começa avaliando atributos como gênero \textit{(Movie, Manga)} e classificação etária \textit{(G - All Ages, PG-13 - Teens 13 or older)}, que são os principais critérios de agrupamento. A popularidade e a faixa de anos (2000-2010, 2010-2015, 2015-2030) também são importantes para a classificação dos animes, refinando a categorização em grupos mais específicos. Além disso, o \textit{k-means} avalia gêneros adicionais \textit{(Action, Comedy, Romance)} e características específicas \textit{(Psychological, Military, Shounen)} para classificações mais detalhadas.
+
+No primeiro nível de decisão, o \textit{k-means} diferencia entre \textit{Movie} e \textit{Manga}, indicando que a mídia do anime é fundamental. Para \textit{Movies} e \textit{G - All Ages}, a Popularidade é frequentemente usada para determinar o grupo, com animes mais populares sendo classificados em diferentes categorias conforme seu nível de popularidade. Dentro de \textit{Movie} e \textit{G - All Ages}, há divisões baseadas em \textit{Action, Comedy, Psychological}, etc., sugerindo que a combinação de gênero e faixa etária pode ser usada para categorizações mais específicas. O \textit{k-means} também utiliza a faixa de anos para diferenciar animes em períodos de lançamento, mostrando que a época pode influenciar a classificação. Critérios adicionais como \textit{Shounen, Mecha, Sci-Fi} são considerados para determinar o grupo dos animes.
+
+Animes que atendem a certas características são frequentemente classificados como \textit{Cluster}: 16 e \textit{Cluster}: 5, considerados grupos mais comuns, enquanto outros grupos aparecem menos frequentemente. \textit{Clusters} menos comuns, como \textit{Cluster}: 0 e \textit{Cluster}: 19, surgem em situações muito específicas e geralmente após várias divisões, sugerindo categorias menos comuns ou mais especializadas.
+
+Os resultados obtidos nesse primeiro modelo são condizentes, pois vimos que o \textit{k-means} primeiro separa as categorias mais generalistas, como gênero e classificação etária, antes de aprofundar em atributos mais específicos. Este processo hierárquico de classificação permite uma análise inicial baseada em características amplas, que são posteriormente refinadas por detalhes adicionais. Mesmo deixando apenas a \textit{feature} de popularidade, ela continuou sendo relevante no processo, embora menos enviesada do que anteriormente. Isso sugere que, apesar de a popularidade ser um fator importante, a exclusão de múltiplos atributos que indicavam isso, permite uma classificação mais equilibrada e precisa.
+
+Para avaliar a eficácia do nosso modelo de recomendação de animes, utilizamos duas métricas principais: \textit{Serendipity} e \textit{Hit Rate}. Essas métricas ajudam a medir a qualidade das recomendações fornecidas pelo modelo e sua capacidade de surpreender e engajar o usuário.
+
+A \textit{Serendipity} avalia a capacidade do modelo de fazer recomendações inesperadas e ao mesmo tempo relevantes para o usuário \cite{Ziarani} ou seja o fator novidade. Para calcular a \textit{Serendipity}, optamos por medir quantas vezes os Top 10 animes recomendados aparecem nas listas de recomendação dos usuários com todas as opções de combinações de no máximo 3 animes. Especificamente, verificamos a frequência com que um dos animes do Top 10 aparece nas listas de recomendações geradas pelo modelo, logo quanto menor for o valor, maior o fator novidade do modelo. A fórmula para a \textit{Serendipity} é a seguinte:
+
+\begin{equation}
+\text{Serendipity} = \frac{\text{Nº aparições de animes top 10}}{\text{Nº total de recomendações}}
+\end{equation}
+
+Observamos que a distância \textit{Manhattan} possui o menor valor de \textit{Serendipity}, indicando que ela é a mais eficaz em recomendar animes diversos e inesperados para os usuários.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=8.5cm]{Serendipity.png}
+    \caption{Serendipity}
+    \label{fig:Serendipity}
+\end{figure}
+
+No processo de avaliação do modelo de recomendação de animes, a métrica \textit{Hit Rate} foi escolhida para medir a eficácia das recomendações geradas pelo modelo. O \textit{Hit Rate} avalia a capacidade do modelo de recomendar itens que são de fato relevantes para o usuário, considerando se o modelo consegue prever corretamente um item de alta qualidade que o usuário avaliou positivamente.
+
+Para calcular o \textit{Hit Rate}, adotamos a seguinte abordagem. Primeiramente, para cada usuário, filtramos os animes que receberam a nota máxima, ou seja, nota 10, que indica uma alta apreciação por parte do usuário. Para esses animes, retiramos um deles, mantendo-o como um item de teste para verificar a eficácia do modelo. Em seguida, rodamos o modelo de recomendação para prever quais animes seriam mais relevantes para o usuário e avaliamos se o anime retirado está entre as principais recomendações fornecidas pelo modelo. O \textit{Hit Rate} é então calculado como a proporção de vezes que o anime removido aparece entre os animes recomendados pelo modelo.
+
+\begin{equation}
+\text{Hit Rate} = \frac{\text{Nº de usuários hit}}{\text{Nº total de usuários}}
+\end{equation}
+
+Testamos o \textit{Hit Rate} em cinco situações distintas: \textit{'Cosine', 'Manhattan', 'Euclidean'}, 'Top 10 animes' e 'Top 3 animes'. O objetivo era verificar se o modelo estava realmente recomendando melhor do que simplesmente sugerir os animes mais populares. Observamos que a métrica \textit{Cosine} obteve o melhor desempenho, seguida de perto pela métrica \textit{Manhattan} e pela recomendação dos 'Top 10 animes'. Esses resultados indicam que o modelo, especialmente quando utiliza a métrica \textit{Cosine}, está recomendando de forma mais eficaz do que apenas indicar os animes mais populares.\cite{movie}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=8.5cm]{hit rate.png}
+    \caption{Hit Rate}
+    \label{fig:hit rate}
+\end{figure}
+
+\section{Conclusão}
+
+Considerando as duas métricas de avaliação analisadas, optou-se por utilizar a distância de \textit{Manhattan} devido ao seu desempenho superior em termos de \textit{hit rate}, bem como sua capacidade de recomendar uma gama mais diversificada de animes. Esta abordagem demonstra que um algoritmo de recomendação eficaz deve ir além de simplesmente sugerir itens com base em preferências preexistentes. Em vez disso, deve também incorporar elementos de aleatoriedade calculada que promovam a exploração de novas possibilidades e ampliem as oportunidades de descobertas inesperadas. Dessa forma, um bom sistema de recomendação não se limita a reforçar gostos existentes, mas também enriquece a experiência do usuário ao abrir portas para novos interesses e perspectivas.
+
+
+\section{Agradecimentos}
+
+Gostaria de expressar minha sincera gratidão a todos os docentes do curso de Especialização em Data Science e Big Data que, com suas valiosas contribuições, tornaram possível a realização deste Trabalho. Em especial, agradeço ao meu orientador, Walmes Zeviani, por seu suporte e orientação. Agradeço também aos meus amigos e à minha família pelo apoio durante toda a minha jornada acadêmica.
+
+\begin{thebibliography}{99}
+  \bibliographystyle{unsrt}
+
+\bibitem{MacQueen} MacQueen, J. B. (1967). Some methods for classification and analysis of multivariate observations. In Proceedings of the Fifth Berkeley Symposium on Mathematical Statistics and Probability (Vol. 1, pp. 281-297).
+
+\bibitem{Jain} Jain, A. K. (2010). Data clustering: 50 years beyond K-means. Pattern Recognition, 31(8), 651-666.
+
+\bibitem{Schein} Schein, E. (2002). Collaborative filtering for implicit feedback datasets. In Proceedings of the 2002 ACM Conference on Recommender Systems (pp. 1-8).
+
+\bibitem{Hastie} Hasting, T., Tibshirani, R., & Friedman, J. (2009). The Elements of Statistical Learning. Springer Science & Business Media.
+
+\bibitem{Manning} Manning, C. D., Raghavan, P., & Schütze, H. (2008). Introduction to Information Retrieval. Cambridge University Press.
+
+\bibitem{Schafer} Schafer, J. B., Konstan, J., & Riedl, J. (2007). Collaborative filtering recommender systems. In The adaptive web (pp. 291-324). Springer, Berlin, Heidelberg.
+
+\bibitem{API} https://myanimelist.net/clubs.php?cid=13727
+
+\bibitem{Ricci}Ricci, F., Rokach, L., & Shapira, B. (2011). Introduction to recommender systems handbook. In Recommender systems handbook (pp. 1-35). Springer, Boston, MA.
+
+\bibitem{Hunter}Hunter, J. D. (2007). Matplotlib: A 2D graphics environment. Computing in Science & Engineering, 9(3), 90-95.
+
+\bibitem{movie}https://towardsdatascience.com/movielens-1m-deep-dive-part-i-8acfeda1ad4
+
+\bibitem{Ziarani}Ziarani, R. J., & Ravanmehr, R. (2023). Serendipity in Recommender Systems: A Systematic Literature Review.
+
+ 
+\end{thebibliography}
+
+\end{document}

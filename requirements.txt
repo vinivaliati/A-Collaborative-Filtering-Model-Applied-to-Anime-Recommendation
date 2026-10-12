@@ -1,0 +1,11 @@
+joblib==1.6.0
+pandas==3.0.6
+plotly==7.1.0
+pyarrow==25.0.1
+scikit-learn==1.9.1
+scipy==1.18.1
+streamlit==1.65.0
+
+# apenas para rodar os notebooks
+jupyter
+matplotlib==3.11.2
